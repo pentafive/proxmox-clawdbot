@@ -105,7 +105,8 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/opt/clawdbot
-ExecStart=/usr/bin/clawdbot gateway start --config /opt/clawdbot/config.yaml
+Environment=CLAWDBOT_CONFIG=/opt/clawdbot/config.yaml
+ExecStart=/usr/bin/clawdbot gateway --bind lan --allow-unconfigured
 Restart=on-failure
 RestartSec=5
 
