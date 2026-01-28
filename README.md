@@ -1,60 +1,51 @@
-# Clawdbot Proxmox VE Helper Script
+# Proxmox Clawdbot LXC Script
 
-This is a submission for the [community-scripts/ProxmoxVE](https://github.com/community-scripts/ProxmoxVE) project.
+Proxmox VE Helper Script for deploying [Clawdbot](https://github.com/clawdbot/clawdbot) AI Assistant in an LXC container.
 
-## What is Clawdbot?
+## Quick Start
 
-**Clawdbot** is an AI-powered personal assistant that runs as a background daemon, bridging Claude and other LLMs to:
-- Messaging platforms (Signal, Telegram, Discord, Slack, iMessage)
-- Smart home systems (Home Assistant)
-- Developer tools (browser automation, shell access, MCP servers)
-
-It's designed for homelabbers and power users who want an always-on AI assistant with full system access.
-
-**Key Features:**
-- Multi-channel messaging support
-- Cron scheduling and reminders
-- Browser automation (Playwright)
-- MCP (Model Context Protocol) integration
-- Built-in web interface
-- Persistent memory across sessions
-
-## Files
-
-| File | Purpose |
-|------|---------|
-| `ct/clawdbot.sh` | Container creation script (runs on Proxmox host) |
-| `install/clawdbot-install.sh` | Installation script (runs inside container) |
-| `json/clawdbot.json` | Metadata for the web interface |
-
-## Installation
-
-After merging, users can install with:
+Run on your Proxmox host:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/clawdbot.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/pentafive/proxmox-clawdbot/main/ct/clawdbot.sh)"
 ```
 
-## Post-Installation
+## Features
 
-1. Edit `/opt/clawdbot/config.yaml` to add your Anthropic API key
-2. Configure messaging channels as needed
-3. Access the web interface at `http://<IP>:3003`
-
-## Resources
-
-- **Documentation:** https://docs.clawd.bot
-- **Source:** https://github.com/clawdbot/clawdbot
-- **Discord:** https://discord.com/invite/clawd
+- **Clawdbot** - AI-powered personal assistant gateway
+- **Gemini CLI** - Google AI command-line interface
+- **Matrix E2EE** - Encrypted Matrix messaging support
+- **fastfetch** - System info on login
+- **LXC optimizations** - Fast SSH, SSHFS/fuse support
 
 ## Container Defaults
 
-- **CPU:** 2 cores
-- **RAM:** 2048 MB
-- **Disk:** 8 GB
-- **OS:** Debian 13
-- **Port:** 3003 (web interface)
+| Resource | Value |
+|----------|-------|
+| CPU | 4 cores |
+| RAM | 4096 MB |
+| Disk | 16 GB |
+| OS | Debian 12 |
+| Port | 3003 |
 
-## Author
+## Post-Installation
 
-- **JD** (pentafive) - https://github.com/pentafive
+1. Edit config: `/opt/clawdbot/config.yaml`
+2. Add your Anthropic/OpenAI API key
+3. Or run: `clawdbot configure` for interactive setup
+4. Authenticate Gemini: `gemini`
+
+## Documentation
+
+- **Clawdbot Docs**: https://docs.clawd.bot
+- **Source**: https://github.com/clawdbot/clawdbot
+- **Discord**: https://discord.com/invite/clawd
+
+## Community Scripts Compatibility
+
+This script follows the [community-scripts/ProxmoxVE](https://github.com/community-scripts/ProxmoxVE) format and can be used standalone or submitted upstream.
+
+---
+
+**Author:** JD (pentafive)
+**License:** MIT

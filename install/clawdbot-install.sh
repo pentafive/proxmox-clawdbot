@@ -5,6 +5,7 @@
 # License: MIT | https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 # Source: https://github.com/clawdbot/clawdbot
 
+# Import Functions and Setup
 source /dev/stdin <<<"$FUNCTIONS_FILE_PATH"
 color
 verb_ip6
@@ -15,31 +16,51 @@ update_os
 
 msg_info "Installing Dependencies"
 $STD apt install -y \
-  ca-certificates \
-  curl \
-  gnupg \
   build-essential \
-  git
+  git \
+  sshfs
 msg_ok "Installed Dependencies"
 
+msg_info "Configuring LXC Optimizations"
+# Fix slow SSH login (pam_systemd times out in LXC)
+sed -i 's/^\(session.*pam_systemd.so\)/#\1/' /etc/pam.d/common-session
+# Enable user_allow_other for SSHFS mounts
+sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
+msg_ok "Configured LXC Optimizations"
+
+# Use helper function for Node.js
 NODE_VERSION="22" setup_nodejs
 
 msg_info "Installing Clawdbot"
 $STD npm install -g clawdbot
 msg_ok "Installed Clawdbot"
 
+msg_info "Installing Matrix Dependencies"
+cd /usr/lib/node_modules/clawdbot && $STD npm install matrix-bot-sdk
+msg_ok "Installed Matrix Dependencies"
+
+msg_info "Installing Gemini CLI"
+$STD npm install -g @google/gemini-cli
+msg_ok "Installed Gemini CLI"
+
+msg_info "Installing fastfetch"
+curl -fsSL https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb -o /tmp/fastfetch.deb
+$STD dpkg -i /tmp/fastfetch.deb
+rm -f /tmp/fastfetch.deb
+echo 'fastfetch' >> /root/.bashrc
+msg_ok "Installed fastfetch"
+
+get_lxc_ip
+
 msg_info "Creating Configuration"
-mkdir -p /opt/clawdbot
+mkdir -p /opt/clawdbot/workspace
 cat <<EOF >/opt/clawdbot/config.yaml
 # Clawdbot Configuration
 # Documentation: https://docs.clawd.bot
 
 # LLM Provider Configuration
-# Uncomment and configure your preferred provider(s)
-
 # anthropic:
 #   apiKey: "your-anthropic-api-key"
-
 # openai:
 #   apiKey: "your-openai-api-key"
 
@@ -52,15 +73,22 @@ gateway:
 webchat:
   enabled: true
 
-# Workspace directory for agent files
+# Workspace
 workspace: /opt/clawdbot/workspace
 
 # Logging
 logging:
   level: info
-EOF
 
-mkdir -p /opt/clawdbot/workspace
+# Channels (configure as needed)
+# channels:
+#   matrix:
+#     enabled: true
+#     homeserver: "https://matrix.example.org"
+#     userId: "@bot:example.org"
+#     accessToken: "your-access-token"
+#     encryption: true
+EOF
 msg_ok "Created Configuration"
 
 msg_info "Creating Service"
