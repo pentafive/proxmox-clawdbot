@@ -18,7 +18,7 @@ CT_ID=""
 CT_CORES=4
 CT_RAM=4096
 CT_DISK=16
-CT_STORAGE="local-lvm"
+CT_STORAGE=""
 CT_BRIDGE="vmbr0"
 CT_OS="debian-12-standard"
 
@@ -57,6 +57,29 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Aborted."
     exit 0
 fi
+
+# Detect storage if not set
+if [[ -z "$CT_STORAGE" ]]; then
+    # Try common storage names
+    for storage in local-lvm local-zfs local; do
+        if pvesm status | grep -q "^$storage "; then
+            CT_STORAGE="$storage"
+            break
+        fi
+    done
+    # If still empty, get first available storage that supports rootdir
+    if [[ -z "$CT_STORAGE" ]]; then
+        CT_STORAGE=$(pvesm status --content rootdir 2>/dev/null | awk 'NR==2 {print $1}')
+    fi
+    if [[ -z "$CT_STORAGE" ]]; then
+        echo -e "${RD}Error: No suitable storage found${CL}"
+        echo "Available storage:"
+        pvesm status
+        exit 1
+    fi
+fi
+
+echo -e "  Storage: ${GN}$CT_STORAGE${CL}"
 
 # Download template if needed
 echo -e "\n${YW}Checking template...${CL}"
