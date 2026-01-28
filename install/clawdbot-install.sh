@@ -43,6 +43,10 @@ msg_info "Installing Gemini CLI"
 $STD npm install -g @google/gemini-cli
 msg_ok "Installed Gemini CLI"
 
+msg_info "Installing Claude Code"
+$STD npm install -g @anthropic-ai/claude-code
+msg_ok "Installed Claude Code"
+
 msg_info "Installing fastfetch"
 curl -fsSL https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb -o /tmp/fastfetch.deb
 $STD dpkg -i /tmp/fastfetch.deb
@@ -108,8 +112,15 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable -q --now clawdbot
-msg_ok "Created Service"
+systemctl daemon-reload
+systemctl enable -q clawdbot
+systemctl start clawdbot
+sleep 2
+if systemctl is-active --quiet clawdbot; then
+  msg_ok "Created Service (running)"
+else
+  msg_warn "Service created but not running - configure API key first"
+fi
 
 motd_ssh
 customize
