@@ -54,6 +54,15 @@ rm -f /tmp/fastfetch.deb
 echo 'fastfetch' >> /root/.bashrc
 msg_ok "Installed fastfetch"
 
+# Optional: Cockpit web admin
+read -r -p "Would you like to install Cockpit web admin? <y/N> " prompt
+if [[ "${prompt,,}" =~ ^(y|yes)$ ]]; then
+  msg_info "Installing Cockpit"
+  $STD apt install -y cockpit
+  systemctl enable -q --now cockpit.socket
+  msg_ok "Installed Cockpit (https://IP:9090)"
+fi
+
 get_lxc_ip
 
 msg_info "Creating Configuration"
